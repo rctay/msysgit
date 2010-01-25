@@ -21,6 +21,13 @@ else
   export PATH=".:/usr/local/bin:/bin:/mingw/bin:$PATH"
 fi
 
+# strip out cygwin paths from PATH
+PATH="$(echo -n $PATH | awk '
+	BEGIN { RS=":"; output="" }
+	!/cygwin/ { output = (output == "") ? $0 : output":"$0 }
+	END { print output }
+')"
+
 # check msys-1.0.dll
 if test -f /etc/msys-1.0.dll.md5
 then
