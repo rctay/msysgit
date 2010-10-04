@@ -55,7 +55,7 @@ fi
 # normalize HOME to unix path
 HOME="$(cd "$HOME" ; pwd)"
 
-export PATH="$HOME/bin:$PATH"
+# export PATH="$HOME/bin:$PATH"
 
 export GNUPGHOME=~/.gnupg
 
