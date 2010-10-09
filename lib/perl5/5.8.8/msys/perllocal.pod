@@ -1,0 +1,22 @@
+=head2 Sat Oct  9 09:56:20 2010: C<Module> L<ExtUtils::MakeMaker|ExtUtils::MakeMaker>
+
+=over 4
+
+=item *
+
+C<installed into: /usr/lib/perl5/5.8.8>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 6.57_01>
+
+=item *
+
+C<EXE_FILES: bin/instmodsh>
+
+=back
+
