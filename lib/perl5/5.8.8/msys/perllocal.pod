@@ -42,3 +42,25 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Sat Oct  9 10:57:55 2010: C<Module> L<Test::Harness|Test::Harness>
+
+=over 4
+
+=item *
+
+C<installed into: /usr/lib/perl5/5.8.8>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 3.22>
+
+=item *
+
+C<EXE_FILES: bin/prove>
+
+=back
+
