@@ -64,3 +64,25 @@ C<EXE_FILES: bin/prove>
 
 =back
 
+=head2 Sat Oct  9 10:59:35 2010: C<Module> L<ExtUtils::CBuilder|ExtUtils::CBuilder>
+
+=over 4
+
+=item *
+
+C<installed into: /usr/lib/perl5/site_perl/5.8.8>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.2703>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
