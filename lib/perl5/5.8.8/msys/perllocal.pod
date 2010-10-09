@@ -20,3 +20,25 @@ C<EXE_FILES: bin/instmodsh>
 
 =back
 
+=head2 Sat Oct  9 10:36:27 2010: C<Module> L<Test::Simple|Test::Simple>
+
+=over 4
+
+=item *
+
+C<installed into: /usr/lib/perl5/5.8.8>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.96>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
