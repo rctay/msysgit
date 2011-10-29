@@ -1,6 +1,6 @@
 [core]
 	symlinks = false
-	autocrlf = true
+	autocrlf = input
 [color]
 	diff = auto
 	status = auto

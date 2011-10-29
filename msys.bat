@@ -85,7 +85,7 @@ start %COMSPEC% /c %BIN%rxvt -backspacekey  -sl 2500 -fg %FGCOLOR% -bg %BGCOLOR
 exit
 
 :startbash
-call %COMSPEC% /c %BIN%bash --login -i
+start %BIN%bash --login -i
 
 :EOF
 
