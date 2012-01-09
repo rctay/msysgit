@@ -58,7 +58,7 @@ Name: consolefont; Description: {#COMP_CONSOLE_FONT}; Types: custom
 
 [Files]
 ; Install files that might be in use during setup under a different name.
-Source: git-cheetah\git_shell_ext.dll; DestDir: {app}\git-cheetah; DestName: git_shell_ext.dll.new; Flags: replacesameversion
+Source: git-cheetah\git_shell_ext.dll; DestDir: {app}\git-cheetah; DestName: git_shell_ext.dll.new; Flags: replacesameversion; Components: ext\cheetah
 
 Source: *; DestDir: {app}; Excludes: \*.bmp, gpl-2.0.rtf, \*.iss, \tmp.*, \bin\*install*, \git-cheetah\git_shell_ext.dll; Flags: recursesubdirs replacesameversion
 Source: ReleaseNotes.rtf; DestDir: {app}; Flags: isreadme replacesameversion
@@ -147,6 +147,7 @@ Type: dirifempty; Name: {app}\home
 
 [Code]
 #include "helpers.inc.iss"
+#include "environment.inc.iss"
 #include "putty.inc.iss"
 #include "modules.inc.iss"
 
@@ -936,10 +937,6 @@ begin
             // This is not a critical error, though uninstall / reinstall will probably not run cleanly,
             // so we continue.
         end;
-
-        // Set SVN_SSH as specified by the user, but with escaped backslashes and quotes.
-        StringChangeEx(EnvSSH[0],'\','\\',True);
-        EnvSSH[0]:=AddQuotes(EnvSSH[0]);
 
         if not SetEnvStrings('SVN_SSH',IsAdminLoggedOn,True,EnvSSH) then begin
             Msg:='Line {#__LINE__}: Unable to set the SVN_SSH environment variable.';
