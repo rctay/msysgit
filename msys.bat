@@ -12,10 +12,10 @@ rem ember to set the "Start in:" field of the shortcut.
 rem A value similar to C:\msys\1.0\bin is what the "Start in:" field needs
 rem to represent.
 
-rem this should let run MSYS shell on x64
-if "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
-  SET COMSPEC=%WINDIR%\SysWOW64\cmd.exe
-)
+rem rem this should let run MSYS shell on x64
+rem if "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
+rem   SET COMSPEC=%WINDIR%\SysWOW64\cmd.exe
+rem )
 
 rem ember value of GOTO: is used to know recursion has happened.
 if "%1" == "GOTO:" goto %2
