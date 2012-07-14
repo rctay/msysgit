@@ -52,13 +52,19 @@ test -z "$force" && {
 }
 
 create_msysgit_tag () {
-	i=0 &&
-	tag=$(git describe HEAD | cut -d- -f1) &&
-	tag=${tag%.msysgit.*} &&
-	while ! git tag -a -m "Git for Windows $1" $tag.msysgit.$i
-	do
-		i=$(($i+1))
-	done
+	if tag=$(git describe --exact-match --match "*.msysgit.*" HEAD 2> /dev/null)
+	then
+		echo "Using existing tag $tag"
+	else
+		i=0 &&
+		tag=$(git describe HEAD | cut -d- -f1) &&
+		tag=${tag%.msysgit.*} &&
+		while ! git tag -a -m "Git for Windows $1" $tag.msysgit.$i 2> /dev/null
+		do
+			i=$(($i+1))
+		done &&
+		echo "Created tag $tag.msysgit.$i"
+	fi
 }
 
 # compile everything needed for standard setup
@@ -70,6 +76,8 @@ test "$do_compile" && {
 			git add share/WinGit/ReleaseNotes.rtf &&
 			git commit -m "Git for Windows $version"
 		 fi) &&
+		(cd git/contrib/subtree &&
+			make install INSTALL=/bin/install prefix=) &&
 		(cd git &&
 		 create_msysgit_tag $version &&
 		 make install) &&
@@ -110,6 +118,9 @@ test -z "$force" && {
 			;;
 		*/git-gui--askpass|*/git-gui--askyesno|*/git-gui.tcl)
 			basename=git-gui/$(basename "$f")
+			;;
+		*/git-subtree)
+			basename=contrib/subtree/$(basename "$f")
 			;;
 		*)
 			basename=$(basename "$f")
