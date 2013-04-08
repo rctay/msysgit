@@ -1,12 +1,19 @@
+; Uncomment the line below to be able to compile the script from within the IDE.
+;#define COMPILE_FROM_IDE
+
 #define APP_NAME      'Git'
+#ifdef COMPILE_FROM_IDE
+#define APP_VERSION   'Snapshot'
+#else
 #define APP_VERSION   '%APPVERSION%'
+#endif
 #define APP_URL       'http://msysgit.googlecode.com/'
 #define APP_BUILTINS  'etc\fileList-builtins.txt'
 #define APP_BINDIMAGE 'etc\fileList-bindimage.txt'
 
-#define COMP_CONSOLE_FONT 'Use a TrueType font in all console windows (not only for Git Bash)'
+#define PLINK_PATH_ERROR_MSG 'Please enter a valid path to (Tortoise)Plink.exe.'
 
-#define DROP_HANDLER_GUID '{{86C86720-42A0-1069-A2E8-08002B30309D}}'
+#define DROP_HANDLER_GUID '{{86C86720-42A0-1069-A2E8-08002B30309D}'
 
 [Setup]
 ; Compiler-related
@@ -15,13 +22,14 @@ LZMAUseSeparateProcess=yes
 OutputBaseFilename={#APP_NAME+'-'+APP_VERSION}
 OutputDir={#GetEnv('USERPROFILE')}
 SolidCompression=yes
-
-; Uncomment the line below to be able to compile the script from within the IDE.
-;SourceDir={#GetEnv('TEMP')}\WinGit
+#ifdef COMPILE_FROM_IDE
+SourceDir={#GetEnv('TEMP')}\WinGit
+#endif
 
 ; Installer-related
 AllowNoIcons=yes
 AppName={#APP_NAME}
+AppPublisher=The Git Development Community
 AppPublisherURL={#APP_URL}
 AppVersion={#APP_VERSION}
 ChangesEnvironment=yes
@@ -33,6 +41,13 @@ DisableReadyPage=yes
 InfoBeforeFile=gpl-2.0.rtf
 PrivilegesRequired=none
 UninstallDisplayIcon={app}\etc\git.ico
+#ifndef COMPILE_FROM_IDE
+#if Pos('-',APP_VERSION)>0
+VersionInfoVersion={#Copy(APP_VERSION,1,Pos('-',APP_VERSION)-1)}
+#else
+VersionInfoVersion={#APP_VERSION}
+#endif
+#endif
 
 ; Cosmetic
 SetupIconFile=etc\git.ico
@@ -42,33 +57,34 @@ WizardImageFile=git.bmp
 WizardSmallImageFile=gitsmall.bmp
 
 [Types]
-; Define a dummy type to avoid getting the default ones.
-Name: custom; Description: Custom installation; Flags: iscustom
+; Define a custom type to avoid getting the three default types.
+Name: default; Description: Default installation; Flags: iscustom
 
 [Components]
-Name: icons; Description: Additional icons; Types: custom
-Name: icons\quicklaunch; Description: In the Quick Launch; Types: custom
-Name: icons\desktop; Description: On the Desktop; Types: custom
-Name: ext; Description: Windows Explorer integration; Types: custom
-Name: ext\reg; Description: Simple context menu (Registry based); Flags: exclusive; Types: custom
-Name: ext\reg\shellhere; Description: Git Bash Here; Types: custom
-Name: ext\reg\guihere; Description: Git GUI Here; Types: custom
-Name: ext\cheetah; Description: Advanced context menu (git-cheetah plugin); Flags: exclusive; Types: custom
-Name: assoc; Description: Associate .git* configuration files with the default text editor; Types: custom
-Name: assoc_sh; Description: Associate .sh files to be run with Bash; Types: custom
-Name: consolefont; Description: {#COMP_CONSOLE_FONT}; Types: custom
+Name: icons; Description: Additional icons
+Name: icons\quicklaunch; Description: In the Quick Launch
+Name: icons\desktop; Description: On the Desktop
+Name: ext; Description: Windows Explorer integration; Types: default
+Name: ext\reg; Description: Simple context menu (Registry based); Flags: exclusive; Types: default
+Name: ext\reg\shellhere; Description: Git Bash Here; Types: default
+Name: ext\reg\guihere; Description: Git GUI Here; Types: default
+Name: ext\cheetah; Description: Advanced context menu (git-cheetah plugin); Flags: exclusive; Types: default
+Name: assoc; Description: Associate .git* configuration files with the default text editor; Types: default
+Name: assoc_sh; Description: Associate .sh files to be run with Bash; Types: default
+Name: consolefont; Description: Use a TrueType font in all console windows (not only for Git Bash)
 
 [Files]
 ; Install files that might be in use during setup under a different name.
-Source: git-cheetah\git_shell_ext.dll; DestDir: {app}\git-cheetah; DestName: git_shell_ext.dll.new; Flags: replacesameversion; Components: ext\cheetah
-Source: git-cheetah\git_shell_ext64.dll; DestDir: {app}\git-cheetah; DestName: git_shell_ext64.dll.new; Flags: replacesameversion; Components: ext\cheetah
+Source: git-cheetah\git_shell_ext.dll; DestDir: {app}\git-cheetah; DestName: git_shell_ext.dll.new; Flags: replacesameversion; Components: ext\cheetah; AfterInstall: DeleteFromVirtualStore
+Source: git-cheetah\git_shell_ext64.dll; DestDir: {app}\git-cheetah; DestName: git_shell_ext64.dll.new; Flags: replacesameversion; Components: ext\cheetah; AfterInstall: DeleteFromVirtualStore
 
-Source: *; DestDir: {app}; Excludes: \*.bmp, gpl-2.0.rtf, \*.iss, \tmp.*, \bin\*install*, \git-cheetah\git_shell_ext.dll, \git-cheetah\git_shell_ext64.dll; Flags: recursesubdirs replacesameversion sortfilesbyextension
-Source: ReleaseNotes.rtf; DestDir: {app}; Flags: isreadme replacesameversion
+Source: *; DestDir: {app}; Excludes: \*.bmp, gpl-2.0.rtf, \*.iss, \tmp.*, \bin\*install*, \git-cheetah\git_shell_ext.dll, \git-cheetah\git_shell_ext64.dll; Flags: recursesubdirs replacesameversion sortfilesbyextension; AfterInstall: DeleteFromVirtualStore
+Source: ReleaseNotes.rtf; DestDir: {app}; Flags: isreadme replacesameversion; AfterInstall: DeleteFromVirtualStore
 
 [Icons]
 Name: {group}\Git GUI; Filename: {app}\bin\wish.exe; Parameters: """{app}\libexec\git-core\git-gui"""; WorkingDir: %HOMEDRIVE%%HOMEPATH%; IconFilename: {app}\etc\git.ico
-Name: {group}\Git Bash; Filename: {syswow64}\cmd.exe; Parameters: "/c """"{app}\bin\sh.exe"" --login -i"""; WorkingDir: %HOMEDRIVE%%HOMEPATH%; IconFilename: {app}\etc\git.ico
+Name: {group}\Git Bash; Filename: {syswow64}\cmd.exe; Parameters: "/c """"{app}\bin\sh.exe"" --login -i"""; WorkingDir: %HOMEDRIVE%%HOMEPATH%; IconFilename: {app}\etc\git.ico; OnlyBelowVersion: 6.0
+Name: {group}\Git Bash; Filename: {app}\bin\sh.exe; Parameters: "--login -i"; WorkingDir: %HOMEDRIVE%%HOMEPATH%; IconFilename: {app}\etc\git.ico; MinVersion: 6.0
 
 [Messages]
 BeveledLabel={#APP_URL}
@@ -119,16 +135,18 @@ Root: HKCU; Subkey: Software\Classes\.gitmodules; ValueType: string; ValueName: 
 ; Install under HKEY_LOCAL_MACHINE if an administrator is installing.
 Root: HKLM; Subkey: Software\Classes\.sh; ValueType: string; ValueData: sh_auto_file; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
 Root: HKLM; Subkey: Software\Classes\sh_auto_file; ValueType: string; ValueData: "Shell Script"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
-Root: HKLM; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: "{syswow64}\cmd.exe /C """"{app}\bin\sh.exe"" ""--login"" ""%1"" %*"""; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
+Root: HKLM; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: "{syswow64}\cmd.exe /C """"{app}\bin\sh.exe"" ""--login"" ""%1"" %*"""; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh; OnlyBelowVersion: 6.0
+Root: HKLM; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: """{app}\bin\sh.exe"" ""--login"" ""%1"" %*"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh; MinVersion: 6.0
 Root: HKLM; Subkey: Software\Classes\sh_auto_file\DefaultIcon; ValueType: string; ValueData: "%SystemRoot%\System32\shell32.dll,-153"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
-Root: HKLM; Subkey: Software\Classes\sh_auto_file\ShellEx\DropHandler; ValueType: string; ValueData: {#DROP_HANDLER_GUID}; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
+Root: HKLM; Subkey: Software\Classes\sh_auto_file\ShellEx\DropHandler; ValueType: string; ValueData: {#DROP_HANDLER_GUID}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: IsAdminLoggedOn; Components: assoc_sh
 
 ; Install under HKEY_CURRENT_USER if a non-administrator is installing.
 Root: HKCU; Subkey: Software\Classes\.sh; ValueType: string; ValueData: sh_auto_file; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
 Root: HKCU; Subkey: Software\Classes\sh_auto_file; ValueType: string; ValueData: "Shell Script"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
-Root: HKCU; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: "{syswow64}\cmd.exe /C """"{app}\bin\sh.exe"" ""--login"" ""%1"" %*"""; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
+Root: HKCU; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: "{syswow64}\cmd.exe /C """"{app}\bin\sh.exe"" ""--login"" ""%1"" %*"""; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh; OnlyBelowVersion: 6.0
+Root: HKCU; Subkey: Software\Classes\sh_auto_file\shell\open\command; ValueType: string; ValueData: """{app}\bin\sh.exe"" ""--login"" ""%1"" %*"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh; MinVersion: 6.0
 Root: HKCU; Subkey: Software\Classes\sh_auto_file\DefaultIcon; ValueType: string; ValueData: "%SystemRoot%\System32\shell32.dll,-153"; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
-Root: HKCU; Subkey: Software\Classes\sh_auto_file\ShellEx\DropHandler; ValueType: string; ValueData: {#DROP_HANDLER_GUID}; Flags: createvalueifdoesntexist uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
+Root: HKCU; Subkey: Software\Classes\sh_auto_file\ShellEx\DropHandler; ValueType: string; ValueData: {#DROP_HANDLER_GUID}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: not IsAdminLoggedOn; Components: assoc_sh
 
 [UninstallDelete]
 ; Delete the built-ins.
@@ -153,6 +171,25 @@ Type: dirifempty; Name: {app}\home
 #include "environment.inc.iss"
 #include "putty.inc.iss"
 #include "modules.inc.iss"
+
+procedure DeleteFromVirtualStore;
+var
+    VirtualStore,FileName:String;
+    DriveChars:Integer;
+begin
+    VirtualStore:=AddBackslash(ExpandConstant('{localappdata}'))+'VirtualStore';
+    FileName:=ExpandConstant(CurrentFileName);
+    DriveChars:=Length(ExtractFileDrive(FileName));
+    if DriveChars>0 then begin
+        Delete(FileName,1,DriveChars);
+        FileName:=VirtualStore+FileName;
+        if FileExists(FileName) and (not DeleteFile(FileName)) then begin
+            Log('Line {#__LINE__}: Unable delete "'+FileName+'".');
+            // This is not a critical error, the user can probably fix it manually,
+            // so we continue.
+        end;
+    end;
+end;
 
 function CreateHardLink(lpFileName,lpExistingFileName:String;lpSecurityAttributes:Integer):Boolean;
 #ifdef UNICODE
@@ -219,14 +256,15 @@ begin
         EdtPlink.Text:=Path+'\plink.exe';
         RdbSSH[GS_Plink].Checked:=True;
     end else begin
-        MsgBox('Please enter a valid path to "TortoisePlink.exe" or "plink.exe".',mbError,MB_OK);
+        MsgBox('{#PLINK_PATH_ERROR_MSG}',mbError,MB_OK);
     end;
 end;
 
 procedure DeleteContextMenuEntries;
 var
     AppDir,Command,Msg:String;
-    RootKey:Integer;
+    RootKey,i:Integer;
+    Keys:TArrayOfString;
 begin
     AppDir:=ExpandConstant('{app}');
 
@@ -236,27 +274,23 @@ begin
         RootKey:=HKEY_CURRENT_USER;
     end;
 
-    Command:='';
-    RegQueryStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell\command','',Command);
-    if Pos(AppDir,Command)>0 then begin
-        if not RegDeleteKeyIncludingSubkeys(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell') then begin
-            Msg:='Line {#__LINE__}: Unable to remove "Git Bash Here" shell extension.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
-        end;
-    end;
+    SetArrayLength(Keys,4);
+    Keys[0]:='SOFTWARE\Classes\Directory\shell\git_shell';
+    Keys[1]:='SOFTWARE\Classes\Directory\Background\shell\git_shell';
+    Keys[2]:='SOFTWARE\Classes\Directory\shell\git_gui';
+    Keys[3]:='SOFTWARE\Classes\Directory\Background\shell\git_gui';
 
-    Command:='';
-    RegQueryStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui\command','',Command);
-    if Pos(AppDir,Command)>0 then begin
-        if not RegDeleteKeyIncludingSubkeys(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui') then begin
-            Msg:='Line {#__LINE__}: Unable to remove "Git GUI Here" shell extension.';
-            MsgBox(Msg,mbError,MB_OK);
-            Log(Msg);
-            // This is not a critical error, the user can probably fix it manually,
-            // so we continue.
+    for i:=0 to Length(Keys)-1 do begin
+        Command:='';
+        RegQueryStringValue(RootKey,Keys[i]+'\command','',Command);
+        if Pos(AppDir,Command)>0 then begin
+            if not RegDeleteKeyIncludingSubkeys(RootKey,Keys[i]) then begin
+                Msg:='Line {#__LINE__}: Unable to remove "Git Bash / GUI Here" shell extension.';
+                MsgBox(Msg,mbError,MB_OK);
+                Log(Msg);
+                // This is not a critical error, the user can probably fix it manually,
+                // so we continue.
+            end;
         end;
     end;
 end;
@@ -335,7 +369,7 @@ end;
 
 procedure InitializeWizard;
 var
-    i,PrevPageID:Integer;
+    PrevPageID:Integer;
     LblGitBash,LblGitCmd,LblGitCmdTools,LblGitCmdToolsWarn:TLabel;
     LblOpenSSH,LblPlink:TLabel;
     PuTTYSessions:TArrayOfString;
@@ -364,7 +398,7 @@ begin
         Caption:='Use Git Bash only';
         Left:=ScaleX(4);
         Top:=ScaleY(8);
-        Width:=ScaleX(129);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=0;
@@ -389,7 +423,7 @@ begin
         Caption:='Run Git from the Windows Command Prompt';
         Left:=ScaleX(4);
         Top:=ScaleY(76);
-        Width:=ScaleX(281);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=1;
@@ -436,7 +470,7 @@ begin
             'sort.exe. Select this option only if you understand the implications.';
         Left:=ScaleX(28);
         Top:=ScaleY(192);
-        Width:=ScaleX(376);
+        Width:=ScaleX(405);
         Height:=ScaleY(26);
         Font.Color:=255;
         Font.Style:=[fsBold];
@@ -472,7 +506,7 @@ begin
             Caption:='Use OpenSSH';
             Left:=ScaleX(4);
             Top:=ScaleY(8);
-            Width:=ScaleX(129);
+            Width:=ScaleX(405);
             Height:=ScaleY(17);
             Font.Style:=[fsBold];
             TabOrder:=0;
@@ -486,7 +520,7 @@ begin
                 'environment variables will not be modified.';
             Left:=ScaleX(28);
             Top:=ScaleY(32);
-            Width:=ScaleX(324);
+            Width:=ScaleX(405);
             Height:=ScaleY(26);
         end;
 
@@ -497,7 +531,7 @@ begin
             Caption:='Use (Tortoise)Plink';
             Left:=ScaleX(4);
             Top:=ScaleY(76);
-            Width:=ScaleX(281);
+            Width:=ScaleX(405);
             Height:=ScaleY(17);
             Font.Style:=[fsBold];
             TabOrder:=1;
@@ -512,13 +546,16 @@ begin
                 'variables will be adjusted to point to the following executable:';
             Left:=ScaleX(28);
             Top:=ScaleY(100);
-            Width:=ScaleX(340);
+            Width:=ScaleX(405);
             Height:=ScaleY(52);
         end;
         EdtPlink:=TEdit.Create(PuTTYPage);
         with EdtPlink do begin
             Parent:=PuTTYPage.Surface;
-            Text:=GetPuTTYLocation;
+            Text:=GetPreviousData('Plink Path','');
+            if not FileExists(Text) then begin
+                Text:=GetPuTTYLocation;
+            end;
             if not FileExists(Text) then begin
                 Text:='';
             end;
@@ -567,7 +604,7 @@ begin
         Caption:='Checkout Windows-style, commit Unix-style line endings';
         Left:=ScaleX(4);
         Top:=ScaleY(8);
-        Width:=ScaleX(340);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=0;
@@ -582,7 +619,7 @@ begin
             'this is the recommended setting on Windows ("core.autocrlf" is set to "true").';
         Left:=ScaleX(28);
         Top:=ScaleY(32);
-        Width:=ScaleX(380);
+        Width:=ScaleX(405);
         Height:=ScaleY(47);
     end;
 
@@ -593,7 +630,7 @@ begin
         Caption:='Checkout as-is, commit Unix-style line endings';
         Left:=ScaleX(4);
         Top:=ScaleY(80);
-        Width:=ScaleX(340);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=1;
@@ -608,7 +645,7 @@ begin
             'this is the recommended setting on Unix ("core.autocrlf" is set to "input").';
         Left:=ScaleX(28);
         Top:=ScaleY(104);
-        Width:=ScaleX(380);
+        Width:=ScaleX(405);
         Height:=ScaleY(47);
     end;
 
@@ -619,7 +656,7 @@ begin
         Caption:='Checkout as-is, commit as-is';
         Left:=ScaleX(4);
         Top:=ScaleY(152);
-        Width:=ScaleX(340);
+        Width:=ScaleX(405);
         Height:=ScaleY(17);
         Font.Style:=[fsBold];
         TabOrder:=2;
@@ -634,7 +671,7 @@ begin
             'projects ("core.autocrlf" is set to "false").';
         Left:=ScaleX(28);
         Top:=ScaleY(176);
-        Width:=ScaleX(380);
+        Width:=ScaleX(405);
         Height:=ScaleY(47);
     end;
 
@@ -695,24 +732,12 @@ begin
 end;
 
 procedure CurPageChanged(CurPageID:Integer);
-var
-    i:Integer;
 begin
     if CurPageID=wpSelectDir then begin
         if not IsDirWritable(WizardDirValue) then begin
             // If the default directory is not writable, choose another default that most likely is.
             // This will be checked later again when the user clicks "Next".
-            WizardForm.DirEdit.Text:=ExpandConstant('{localappdata}\{#APP_NAME}');
-        end;
-    end;
-
-    // Uncheck the console font option by default.
-    if CurPageID=wpSelectComponents then begin
-        for i:=0 to WizardForm.ComponentsList.Items.Count-1 do begin
-            if WizardForm.ComponentsList.ItemCaption[i]='{#COMP_CONSOLE_FONT}' then begin
-                WizardForm.ComponentsList.Checked[i]:=False;
-                Break;
-            end;
+            WizardForm.DirEdit.Text:=ExpandConstant('{userpf}\{#APP_NAME}');
         end;
     end;
 
@@ -748,7 +773,7 @@ begin
         Result:=RdbSSH[GS_OpenSSH].Checked or
             (RdbSSH[GS_Plink].Checked and FileExists(EdtPlink.Text));
         if not Result then begin
-            MsgBox('Please enter a valid path to (Tortoise)Plink.exe.',mbError,MB_OK);
+            MsgBox('{#PLINK_PATH_ERROR_MSG}',mbError,MB_OK);
         end;
     end else if (ProcessesPage<>NIL) and (CurPageID=ProcessesPage.ID) then begin
         // It would have been nicer to just disable the "Next" button, but the
@@ -792,6 +817,7 @@ var
     LinkCreated:Boolean;
     FindRec:TFindRec;
     RootKey:Integer;
+    Version:TWindowsVersion;
 begin
     if CurStep=ssInstall then begin
         // Shutdown locking processes just before the actual installation starts.
@@ -1066,8 +1092,14 @@ begin
         Create shortcuts that need to be created regardless of the "Don't create a Start Menu folder" toggle
     }
 
-    Cmd:=ExpandConstant('{syswow64}\cmd.exe');
-    TempName:='/c ""'+AppDir+'\bin\sh.exe" --login -i"';
+    GetWindowsVersionEx(Version);
+    if Version.Major<6 then begin
+        Cmd:=ExpandConstant('{syswow64}\cmd.exe');
+        TempName:='/c ""'+AppDir+'\bin\sh.exe" --login -i"';
+    end else begin
+        Cmd:=AppDir+'\bin\sh.exe';
+        TempName:='--login -i';
+    end;
     FileName:=AppDir+'\etc\git.ico';
 
     if IsComponentSelected('icons\quicklaunch') then begin
@@ -1120,8 +1152,13 @@ begin
     end;
 
     if IsComponentSelected('ext\reg\shellhere') then begin
-        if (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell','','Git Ba&sh Here')) or
-           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell\command','','"'+ExpandConstant('{syswow64}')+'\wscript" "'+AppDir+'\Git Bash.vbs" "%1"')) then begin
+        Msg:='Git Ba&sh Here';
+        Cmd:='"'+ExpandConstant('{syswow64}')+'\wscript" "'+AppDir+'\Git Bash.vbs" "%1"';
+        if (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell','',Msg)) or
+           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_shell\command','',Cmd)) or
+           (StringChangeEx(Cmd,'%1','%v',false)<>1) or
+           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_shell','',Msg)) or
+           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_shell\command','',Cmd)) then begin
             Msg:='Line {#__LINE__}: Unable to create "Git Bash Here" shell extension.';
             MsgBox(Msg,mbError,MB_OK);
             Log(Msg);
@@ -1131,8 +1168,13 @@ begin
     end;
 
     if IsComponentSelected('ext\reg\guihere') then begin
-        if (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui','','Git &GUI Here')) or
-           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui\command','','"'+AppDir+'\bin\wish.exe" "'+AppDir+'\libexec\git-core\git-gui" "--working-dir" "%1"')) then begin
+        Msg:='Git &GUI Here';
+        Cmd:='"'+AppDir+'\bin\wish.exe" "'+AppDir+'\libexec\git-core\git-gui" "--working-dir" "%1"';
+        if (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui','',Msg)) or
+           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\shell\git_gui\command','',Cmd)) or
+           (StringChangeEx(Cmd,'%1','%v',false)<>1) or
+           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_gui','',Msg)) or
+           (not RegWriteStringValue(RootKey,'SOFTWARE\Classes\Directory\Background\shell\git_gui\command','',Cmd)) then begin
             Msg:='Line {#__LINE__}: Unable to create "Git GUI Here" shell extension.';
             MsgBox(Msg,mbError,MB_OK);
             Log(Msg);
@@ -1188,6 +1230,7 @@ begin
         Data:='OpenSSH';
     end else if RdbSSH[GS_Plink].Checked then begin
         Data:='Plink';
+        SetPreviousData(PreviousDataKey,'Plink Path',EdtPlink.Text);
     end;
     SetPreviousData(PreviousDataKey,'SSH Option',Data);
 
